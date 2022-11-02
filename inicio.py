@@ -1,10 +1,11 @@
-from tkinter import BOTTOM, RIGHT, X, Y, Entry,Label, Frame, Tk, Button,ttk, Scrollbar, VERTICAL, HORIZONTAL,StringVar,messagebox
+from tkinter import BOTTOM, RIGHT, X, Y, Entry,Label, Frame, Tk, Button,ttk, Scrollbar, VERTICAL, HORIZONTAL,StringVar,messagebox,PhotoImage
 from conexion import Registro_datos
 
 class Registro(Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
+        self.master = master
         # Se crea objeto de la clase Registro_datos del modulo conexion que se conecta con la BBDD
         self.base_datos = Registro_datos()
        
@@ -12,9 +13,9 @@ class Registro(Frame):
         self.frame1 = Frame(master)
         self.frame1.pack(side="top")
 
-        # Frame para mostrar base de datos en una tabla
-        self.frame3 = Frame(master)
-        self.frame3.pack(side="bottom",padx=30,pady=30)
+               # Frame para mostrar base de datos en una tabla
+        #self.frame3 = Frame(master)
+        #self.frame3.pack(side="bottom",padx=30,pady=30)
       
         # Frame para controles y opciones
         self.frame4 = Frame(master)
@@ -30,8 +31,33 @@ class Registro(Frame):
     def pantalla_inicio(self): 
         # Frame 1
         Label(self.frame1, text = 'INFORMACION ALBUMES - INTERPRETES',bg='gray22',fg='white', font=('Orbitron',15,'bold')).grid(column=0, row=0)
-           
-        # Frame 3
+               #Frame 4 - se ubicar los controles 
+        Label(self.frame4, text = 'CONTROL DE ALBUMES',font=(15),relief="groove",bd=5).grid(columnspan=3,column=0,row=0,padx=20,pady=20)
+        
+        Button(self.frame4,command =self.mostrar_todo, text='Listado Albumes').grid(column=0,row=1,padx=10,pady=15)     
+        Button(self.frame4,command= self.nuevo_album, text='Nuevo Album').grid(column=2,row=1,padx=10)
+        
+
+        Button(self.frame4,text="Listado por genero",command=self.mostrar_listado_genero).grid(column=0,row=2,padx=10,pady=15)
+        #Button(self.frame4,text="Nuevo Genero").grid(column=2,row=2,padx=10,pady=15)
+
+        ttk.Separator(self.frame4,orient=HORIZONTAL).grid(columnspan=3,column=0,row=4,pady=5,sticky=("N","S","E","W"))
+        
+        Label(self.frame4, text= 'Buscar por Nombre:').grid(column=0,row=5,sticky="E")
+        Entry(self.frame4,textvariable=self.buscar).grid(column=1,row=5, pady=5, padx=5)
+        Button(self.frame4,command =self.buscar_nombre, text='Buscar').grid(column = 2, row=5,rowspan=1, padx=10,pady=5)
+        
+        ttk.Separator(self.frame4,orient=HORIZONTAL).grid(columnspan=3,column=0,row=6,pady=5,sticky=("N","S","E","W"))
+        
+        Button(self.frame4,command = self.eliminar_fila, text='Eliminar').grid(column = 1,row=7,pady=10)
+        Button(self.frame4, text="Salir",width=5,command= lambda:Registro.salir_aplicacion(self)).grid(column=2,row=7) 
+
+    # Tabla con datos de los albumes
+    def tabla_albumes(self):   
+        
+        # Frame para mostrar base de datos de los albumes en una tabla
+        self.frame3 = Frame(self.master)
+        self.frame3.pack(side="bottom",padx=30,pady=30)
         
         # barra eje x
         self.barra_lado_x = Scrollbar(self.frame3, orient = HORIZONTAL)
@@ -85,19 +111,65 @@ class Registro(Frame):
         estilo.map('Treeview',background=[('selected', 'light blue')], foreground=[('selected','black')] )
 
         self.tabla.bind("<<TreeviewSelect>>", self.obtener_fila)  # seleccionar  fila
+        
+        self.boton_cerrar = Button (self.frame3,text="Cerrar",command= lambda: self.frame3.destroy()).pack(side='right',padx=250)
 
-       #Frame 4 - se ubicar los controles 
-        Label(self.frame4, text = 'CONTROL DE ALBUMES',font=(15),relief="groove",bd=5).grid(columnspan=3,column=0,row=0,padx=20,pady=20)
-        Button(self.frame4,command = self.mostrar_todo, text='Listado Albumes').grid(column=0,row=1,padx=10,pady=15)     
-        Button(self.frame4,command= self.nuevo_album, text='Nuevo Album').grid(column=2,row=1,padx=10)
-        ttk.Separator(self.frame4,orient=HORIZONTAL).grid(columnspan=3,column=0,row=2,pady=5,sticky=("N","S","E","W"))
-        Label(self.frame4, text= 'Buscar por Nombre:').grid(column=0,row=3,sticky="E")
-        Entry(self.frame4,textvariable=self.buscar).grid(column=1,row=3, pady=5, padx=5)
-        Button(self.frame4,command = self.buscar_nombre, text='Buscar').grid(column = 2, row=3,rowspan=1, padx=10,pady=5)
-        Button(self.frame4,command = self.actualizar_album, text='Actualizar Datos').grid(column = 2, row=4,rowspan=1, padx=10,pady=10)
-        ttk.Separator(self.frame4,orient=HORIZONTAL).grid(columnspan=3,column=0,row=6,pady=5,sticky=("N","S","E","W"))
-        Button(self.frame4,command = self.eliminar_fila, text='Eliminar').grid(column = 1,row=7,pady=10)
-        Button(self.frame4, text="Salir",width=5,command= lambda:Registro.salir_aplicacion(self)).grid(column=2,row=7)
+        self.boton_actualizar = Button(self.frame3,text='Actualizar Datos',command = self.actualizar_album).pack(side='left',padx=250)
+
+    def tabla_genero(self):   
+        
+        # Frame para mostrar base de datos de los albumes en una tabla
+        self.frame3 = Frame(self.master)
+        self.frame3.pack(side="bottom",padx=30,pady=30)
+        
+        # barra eje x
+        self.barra_lado_x = Scrollbar(self.frame3, orient = HORIZONTAL)
+        self.barra_lado_x.pack(side=BOTTOM,fill=X)
+
+        # barra eje y 
+        self.barra_lado_y = Scrollbar(self.frame3, orient =VERTICAL)
+        self.barra_lado_y.pack(side=RIGHT,fill=Y)
+
+        # Se crea tabla para mostrar datos
+        self.tabla1 = ttk.Treeview(self.frame3,height=10,yscrollcommand=self.barra_lado_y.set,xscrollcommand=self.barra_lado_x.set)
+        self.tabla1.pack()
+        
+        # comando para que la barra corra cuando hay datos para ver
+        self.barra_lado_x.config(command=self.tabla1.xview)
+        self.barra_lado_y.config(command=self.tabla1.yview)
+
+        # Se enumeran y se ubican las columnas para mostrar datos de la BBDD
+        self.tabla1['columns'] = ('Codigo_album','Nombre_album','Nombre_Interprete','Apellido_interprete','Genero','Discografica',
+            'Precio','Cantidad','Formato')
+
+        self.tabla1.column('#0',minwidth=100,width=120,anchor='center')
+        self.tabla1.column('#1',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#2',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#3',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#4',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#5',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#6',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#7',minwidth=100,width=100,anchor='center')
+        self.tabla1.column('#8',minwidth=100,width=120,anchor='center')
+       
+        self.tabla1.heading('#0',text='Codigo_album',anchor ='center')
+        self.tabla1.heading('#1',text='Nombre_album',anchor='center')
+        self.tabla1.heading('#2',text='Nombre_interprete',anchor ='center')
+        self.tabla1.heading('#3',text='Apellido_Interprete',anchor ='center')
+        self.tabla1.heading('#4',text='Genero',anchor='center')
+        self.tabla1.heading('#5',text='Discografica',anchor='center')
+        self.tabla1.heading('#6',text='Precio',anchor ='center')
+        self.tabla1.heading('#7',text='Cantidad',anchor='center')
+        self.tabla1.heading('#8',text='Formato',anchor='center')
+    
+        # style es para dar estilo a la tabla, formato de las columnas y el color de la seleccion de la fila
+        estilo = ttk.Style(self.frame3)
+        estilo.theme_use('clam')    
+        estilo.map('Treeview',background=[('selected', 'light blue')], foreground=[('selected','black')] )
+
+        self.tabla1.bind("<<TreeviewSelect>>", self.obtener_fila)  # seleccionar  fila
+        
+        self.boton_cerrar = Button (self.frame3,text="Cerrar",command= lambda: self.frame3.destroy()).pack()
 
     # Ventana para cargar un nuevo album
     def nuevo_album(self):
@@ -137,7 +209,7 @@ class Registro(Frame):
         Entry(self.ventana_datos_album,textvariable=self.interprete).grid(column=1,row=3)
         Entry(self.ventana_datos_album,textvariable=self.genero).grid(column=1,row=4)
         Entry(self.ventana_datos_album,textvariable=self.cant_temas).grid(column=1,row=5)
-        ttk.Combobox(self.ventana_datos_album,state='readonly',values=self.base_datos.buscar_discografica(),textvariable=self.discografica).grid(column=1,row=6) #state="readonly",
+        ttk.Combobox(self.ventana_datos_album,values=self.base_datos.buscar_discografica(),textvariable=self.discografica).grid(column=1,row=6) #state="readonly",
         Entry(self.ventana_datos_album,textvariable=self.formato).grid(column=1,row=7)
         Entry(self.ventana_datos_album,textvariable=self.fecha_lanzamiento).grid(column=1,row=8)
         Entry(self.ventana_datos_album,textvariable=self.precio).grid(column=1,row=9)
@@ -236,7 +308,7 @@ class Registro(Frame):
     
         # boton para volver a la pantalla principal
         Button(self.ventana_actualizar,command= self.ventana_actualizar.destroy, text="Volver").grid(column=2,row=12,pady=10,padx=5)
-        
+
         self.ventana_actualizar.mainloop()
 
     # Fn para sacar el ID de la discografica para que se cargue como int en la sentencia SQL
@@ -246,18 +318,17 @@ class Registro(Frame):
         for i in self.id_disc:
             if not i == " ":
                 self.lista_codigo.append(i)
-                print(self.lista_codigo[0])
         return int(self.lista_codigo[0])
 
     # Fn que recibe los datos ingresados en la funcion nuevo_album y a travez de base_datos.inserta_album los ingresa en la BBDD
     def agregar_datos(self):
-        self.tabla.get_children()
+        #self.tabla.get_children()
         codigo_album = self.codigo_album.get()
         nombre = self.nombre.get()
         interprete = self.interprete.get()
         genero = self.genero.get()
         cant_temas = self.cant_temas.get()
-        discografica = self.discografica1.get()
+        discografica = self.obtener_id_discografica()
         formato = self.formato.get()
         fecha_lanzamiento = self.fecha_lanzamiento.get()
         precio = self.precio.get()
@@ -286,6 +357,8 @@ class Registro(Frame):
 
         self.base_datos.actualizar_datos_album(datos)
 
+        messagebox.showinfo("Disquería","Album actualizado con exito!")
+
     # Fn para salir de la aplicacion
     def salir_aplicacion(self):
         salir=messagebox.askokcancel("Disquería","Desea salir de la aplicación?")
@@ -294,18 +367,29 @@ class Registro(Frame):
 
     # Fn para buscar albumes por nombre
     def buscar_nombre(self):
-        nombre_album = self.buscar.get()
-        nombre_album = str("'" + nombre_album + "%'")
-        nombre_buscado = self.base_datos.busca_nombre_album(nombre_album)
-        self.tabla.delete(*self.tabla.get_children())
-        i = -1
-        for dato in nombre_buscado:
-            i= i+1                       
-            self.tabla.insert('',i, text = nombre_buscado[i][0:1], values=nombre_buscado[i][1:12])
-        self.buscar.set("")
-     
+        try:
+            if self.buscar != '':
+                nombre_album = self.buscar.get()
+                nombre_album = str("'" + nombre_album + "%'")
+                nombre_buscado = self.base_datos.busca_nombre_album(nombre_album)
+                self.tabla.delete(*self.tabla.get_children())
+                i = -1
+                for dato in nombre_buscado:
+                    i= i+1                       
+                    self.tabla.insert('',i, text = nombre_buscado[i][0:1], values=nombre_buscado[i][1:12])
+                self.buscar.set("")
+            else:
+                messagebox.showerror("Disquería","Ingrese un nombre de Album para buscar")
+        except:
+            self.mostrar_todo()
+            if self.buscar == "":
+                messagebox.showerror("Disquería","Ingrese un nombre de Album para buscar")
+            else:
+                pass
+            
     # Fn para mostrar datos en la tabla
     def mostrar_todo(self):
+        self.tabla_albumes()
         self.tabla.delete(*self.tabla.get_children())
         registro = self.base_datos.mostrar_datos()
         i = -1
@@ -313,13 +397,29 @@ class Registro(Frame):
             i= i+1                       
             self.tabla.insert("",i, text = registro[i][0:1], values=registro[i][1:12])
 
+    # Fn para mostrar listado por genero en la tabla
+    def mostrar_listado_genero(self):
+        self.tabla_genero()
+        self.tabla1.delete(*self.tabla1.get_children())
+        registro_genero = self.base_datos.listado_genero()
+        i = -1
+        for dato in registro_genero:
+            i= i+1                       
+            self.tabla1.insert("",i, text = registro_genero[i][0:1], values=registro_genero[i][1:10])
+
     # Fn para eliminar album            
     def eliminar_fila(self):
-        fila = self.tabla.selection()
-        if len(fila) !=0:        
-            nombre = ("'"+ str(self.nombre_borrar) + "'")       
-            self.base_datos.fn_elimina_album(nombre)
-            self.tabla.delete(fila)
+        try:
+            item_seleccionado = self.tabla.focus()
+            if not item_seleccionado:
+                return messagebox.showerror("Disquería","Seleccione un Album para eliminar")
+            fila = self.tabla.selection()
+            if len(fila) !=0:        
+                nombre = ("'"+ str(self.nombre_borrar) + "'")       
+                self.base_datos.fn_elimina_album(nombre)
+                self.tabla.delete(fila)
+        except:
+            return messagebox.showerror("Disquería","Seleccione un Album del listado para eliminar")
 
     # Fn para que toma los datos seleccionados de una fila
     def obtener_fila(self,event):
@@ -347,8 +447,6 @@ class Registro(Frame):
         self.precio_cargado = data['values'][8]
         self.cantidad_cargada = data['values'][9]
         self.caratula_cargada = data['values'][10]
-
-        print(self.id_album)
       
         self.actualizar()
 
@@ -356,11 +454,11 @@ class Registro(Frame):
 def main():
     ventana_inicio = Tk()
     ventana_inicio.title("Registro de Albumes e Interpretes")
+    fondo = PhotoImage (file='' )
     ventana_inicio.config(bg='gray')
     ventana_inicio.state('zoomed')
     w, h = ventana_inicio.winfo_screenwidth(),ventana_inicio.winfo_screenheight()
     ventana_inicio.geometry("%dx%d+0+0" % (w, h))
-
     app = Registro(ventana_inicio)
     app.mainloop()
 

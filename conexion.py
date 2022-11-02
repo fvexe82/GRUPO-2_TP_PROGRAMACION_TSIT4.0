@@ -88,5 +88,8 @@ class Registro_datos():
          precio, cantidad, formato.tipo FROM album, interprete, discografica,formato,genero 
          WHERE album.id_interprete = interprete.id_interprete AND album.id_discografica = discografica.id_discografica
          AND album.id_formato = formato.id_formato AND album.id_genero = genero.id_genero ORDER By genero.nombre asc'''
-        pass
+        cursor.execute(listar_por_genero)
+        registro_genero = cursor.fetchall()
+        return registro_genero
+        
 
