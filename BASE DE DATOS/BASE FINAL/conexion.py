@@ -1,16 +1,16 @@
-
 from tkinter import messagebox
-from tkinter import *
 import mysql.connector
 
+# Clase para conectarse a la base y ejecutar sentencias SQL
 class Registro_datos():
+
     # metodo para conectarse con la base
     def __init__(self):
         self.conexion = mysql.connector.connect(
-        host = "localhost",
-        #port = 3306,
+        host = "127.0.0.1",
+        port = "3306",
         user = "root",
-        password = "maytecarolina",
+        password = "1234",
         db = "DISQUERIA_TSIT40"
     )
 
@@ -36,7 +36,6 @@ class Registro_datos():
         mostrar_base = "SELECT * FROM ALBUM ORDER BY NOMBRE ASC" 
         cursor.execute(mostrar_base)
         registro = cursor.fetchall()
-        cursor.close()
         return registro
 
     # metodo para buscar albumes por nombre
@@ -61,10 +60,15 @@ class Registro_datos():
             messagebox.showerror("Disquería",(f"El album {nombre}, no pudo ser eliminado"))
    
     # metodo para actualizar datos de albumes
-    def actualizar_album(self,nombre):
+    def actualizar_datos_album(self,datos):
         cursor = self.conexion.cursor()
-        actualizar_datos = "UPDATE FROM ALBUM WHERE NOMBRE = {}".format(nombre)
-        cursor.execute(actualizar_datos)
+        
+        actualizar_datos = '''UPDATE ALBUM 
+                            SET COD_ALBUM = %s,NOMBRE= %s,ID_INTERPRETE= %s,ID_GENERO= %s,CANT_TEMAS= %s,ID_DISCOGRAFICA= %s,ID_FORMATO= %s,
+                            FEC_LANZAMIENTO= %s,PRECIO= %s,CANTIDAD= %s,CARATULA= %s
+                            WHERE ID_ALBUM = %s'''
+        
+        cursor.execute(actualizar_datos,datos)
         self.conexion.commit()
         cursor.close()
 
@@ -74,9 +78,18 @@ class Registro_datos():
         buscar_discograficas = "SELECT * FROM DISCOGRAFICA"
         cursor.execute(buscar_discograficas)
         discograficas_obtenidas = cursor.fetchall()
-        return discograficas_obtenidas
         cursor.close()
+        return discograficas_obtenidas
 
-   # if conexion.is_connected():
-    #    conexion.close()
-     #   print("CONEXION CERRADA EXITOSAMENTE")
+    # metodo para listado por genero
+    def listado_genero (self):
+        cursor = self.conexion.cursor()
+        listar_por_genero ='''SELECT cod_album, album.nombre, interprete.nombre, interprete.apellido, genero.nombre, discografica.nombre,
+         precio, cantidad, formato.tipo FROM album, interprete, discografica,formato,genero 
+         WHERE album.id_interprete = interprete.id_interprete AND album.id_discografica = discografica.id_discografica
+         AND album.id_formato = formato.id_formato AND album.id_genero = genero.id_genero ORDER By genero.nombre asc'''
+        cursor.execute(listar_por_genero)
+        registro_genero = cursor.fetchall()
+        return registro_genero
+        
+
