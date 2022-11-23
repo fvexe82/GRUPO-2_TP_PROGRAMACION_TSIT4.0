@@ -1,4 +1,4 @@
-from tkinter import BOTTOM, RIGHT, X, Y, Entry,Label, Frame, Tk, Button,ttk, Scrollbar, VERTICAL, HORIZONTAL,StringVar,messagebox,PhotoImage
+from tkinter import BOTTOM, RIGHT, X, Y, Entry,Label, Frame, Tk, Button,ttk, Scrollbar, VERTICAL, HORIZONTAL,StringVar,messagebox
 from conexion import Registro_datos
 
 class Registro(Frame):
@@ -12,10 +12,7 @@ class Registro(Frame):
         # Frame titulo                           
         self.frame1 = Frame(master)
         self.frame1.pack(side="top")
-
-               # Frame para mostrar base de datos en una tabla
-        #self.frame3 = Frame(master)
-        #self.frame3.pack(side="bottom",padx=30,pady=30)
+        
       
         # Frame para controles y opciones
         self.frame4 = Frame(master)
@@ -29,17 +26,17 @@ class Registro(Frame):
         
     # Venta de inicio o principal
     def pantalla_inicio(self): 
+    
         # Frame 1
         Label(self.frame1, text = 'INFORMACION ALBUMES - INTERPRETES',bg='gray22',fg='white', font=('Orbitron',15,'bold')).grid(column=0, row=0)
-               #Frame 4 - se ubicar los controles 
+               
+        #Frame 4 - se ubicar los controles 
         Label(self.frame4, text = 'CONTROL DE ALBUMES',font=(15),relief="groove",bd=5).grid(columnspan=3,column=0,row=0,padx=20,pady=20)
         
         Button(self.frame4,command =self.mostrar_todo, text='Listado Albumes').grid(column=0,row=1,padx=10,pady=15)     
         Button(self.frame4,command= self.nuevo_album, text='Nuevo Album').grid(column=2,row=1,padx=10)
         
-
         Button(self.frame4,text="Listado por genero",command=self.mostrar_listado_genero).grid(column=0,row=2,padx=10,pady=15)
-        #Button(self.frame4,text="Nuevo Genero").grid(column=2,row=2,padx=10,pady=15)
 
         ttk.Separator(self.frame4,orient=HORIZONTAL).grid(columnspan=3,column=0,row=4,pady=5,sticky=("N","S","E","W"))
         
@@ -116,6 +113,7 @@ class Registro(Frame):
 
         self.boton_actualizar = Button(self.frame3,text='Actualizar Datos',command = self.actualizar_album).pack(side='left',padx=250)
 
+    # Tabla con listado por genero
     def tabla_genero(self):   
         
         # Frame para mostrar base de datos de los albumes en una tabla
@@ -140,7 +138,7 @@ class Registro(Frame):
 
         # Se enumeran y se ubican las columnas para mostrar datos de la BBDD
         self.tabla1['columns'] = ('Codigo_album','Nombre_album','Nombre_Interprete','Apellido_interprete','Genero','Discografica',
-            'Precio','Cantidad','Formato')
+            'Precio','Formato')
 
         self.tabla1.column('#0',minwidth=100,width=120,anchor='center')
         self.tabla1.column('#1',minwidth=100,width=100,anchor='center')
@@ -150,7 +148,7 @@ class Registro(Frame):
         self.tabla1.column('#5',minwidth=100,width=100,anchor='center')
         self.tabla1.column('#6',minwidth=100,width=100,anchor='center')
         self.tabla1.column('#7',minwidth=100,width=100,anchor='center')
-        self.tabla1.column('#8',minwidth=100,width=120,anchor='center')
+       
        
         self.tabla1.heading('#0',text='Codigo_album',anchor ='center')
         self.tabla1.heading('#1',text='Nombre_album',anchor='center')
@@ -159,8 +157,7 @@ class Registro(Frame):
         self.tabla1.heading('#4',text='Genero',anchor='center')
         self.tabla1.heading('#5',text='Discografica',anchor='center')
         self.tabla1.heading('#6',text='Precio',anchor ='center')
-        self.tabla1.heading('#7',text='Cantidad',anchor='center')
-        self.tabla1.heading('#8',text='Formato',anchor='center')
+        self.tabla1.heading('#7',text='Formato',anchor='center')
     
         # style es para dar estilo a la tabla, formato de las columnas y el color de la seleccion de la fila
         estilo = ttk.Style(self.frame3)
@@ -206,11 +203,11 @@ class Registro(Frame):
 
         Entry(self.ventana_datos_album,textvariable=self.codigo_album).grid(column=1,row=1, padx =5)
         Entry(self.ventana_datos_album,textvariable=self.nombre).grid(column=1,row=2)
-        Entry(self.ventana_datos_album,textvariable=self.interprete).grid(column=1,row=3)
-        Entry(self.ventana_datos_album,textvariable=self.genero).grid(column=1,row=4)
+        ttk.Combobox(self.ventana_datos_album,values=self.base_datos.buscar_interpretes(),textvariable=self.interprete).grid(column=1,row=3)
+        ttk.Combobox(self.ventana_datos_album,values=self.base_datos.buscar_genero(),textvariable=self.genero).grid(column=1,row=4)
         Entry(self.ventana_datos_album,textvariable=self.cant_temas).grid(column=1,row=5)
-        ttk.Combobox(self.ventana_datos_album,values=self.base_datos.buscar_discografica(),textvariable=self.discografica).grid(column=1,row=6) #state="readonly",
-        Entry(self.ventana_datos_album,textvariable=self.formato).grid(column=1,row=7)
+        ttk.Combobox(self.ventana_datos_album,values=self.base_datos.buscar_discografica(),textvariable=self.discografica).grid(column=1,row=6)
+        ttk.Combobox(self.ventana_datos_album,values=self.base_datos.buscar_formatos(),textvariable=self.formato).grid(column=1,row=7) 
         Entry(self.ventana_datos_album,textvariable=self.fecha_lanzamiento).grid(column=1,row=8)
         Entry(self.ventana_datos_album,textvariable=self.precio).grid(column=1,row=9)
         Entry(self.ventana_datos_album,textvariable=self.cantidad).grid(column=1,row=10)
@@ -267,11 +264,11 @@ class Registro(Frame):
         self.entry_nombre.grid(column=1,row=2)
         self.entry_nombre.insert(0,self.nombre_cargado)
 
-        self.entry_interprete = ttk.Entry(self.ventana_actualizar,textvariable=self.interprete1)
+        self.entry_interprete = ttk.Combobox(self.ventana_actualizar,values=self.base_datos.buscar_interpretes(),textvariable=self.interprete1)
         self.entry_interprete.grid(column=1,row=3)
         self.entry_interprete.insert(0,self.interprete_cargado)
 
-        self.entry_genero = ttk.Entry(self.ventana_actualizar,textvariable= self.genero1)
+        self.entry_genero = ttk.Combobox(self.ventana_actualizar,values=self.base_datos.buscar_genero(),textvariable= self.genero1)
         self.entry_genero.grid(column=1,row=4)
         self.entry_genero.insert(0,self.genero_cargado)
 
@@ -283,7 +280,7 @@ class Registro(Frame):
         self.entry_discografica.grid(column=1,row=6) #state="readonly",
         self.entry_discografica.set(self.discografica_cargada)
         
-        entry_formato = ttk.Entry(self.ventana_actualizar,textvariable=self.formato1)
+        entry_formato = ttk.Combobox(self.ventana_actualizar,values=self.base_datos.buscar_formatos(),textvariable=self.obtener_id_formato_modificado)
         entry_formato.grid(column=1,row=7)
         entry_formato.insert(0,self.formato_cargado)
 
@@ -313,23 +310,60 @@ class Registro(Frame):
 
     # Fn para sacar el ID de la discografica para que se cargue como int en la sentencia SQL
     def obtener_id_discografica(self):
-        self.id_disc=self.discografica.get()
-        self.lista_codigo=[]
-        for i in self.id_disc:
-            if not i == " ":
-                self.lista_codigo.append(i)
-        return int(self.lista_codigo[0])
+        data = self.discografica.get()
+        id_obtenido=self.base_datos.buscar_id_discografica(data)
+        return (id_obtenido)
+
+    # Fn para sacar el ID del interprete para que se cargue como int en la sentencia SQL
+    def obtener_id_interprete(self):
+        data = ""
+        self.interprete.get()
+        datos_obtenidos= [x[0:2] for x in self.interprete.get() ]
+        data = datos_obtenidos[0]+datos_obtenidos[1]
+        return (data)
+    
+    # Fn para sacar el ID del interprete para que se cargue como int en la sentencia SQL para modificar
+    def obtener_id_interprete_modificado(self):
+        data = ""
+        self.interprete1.get()
+        datos_obtenidos= [x[0:2] for x in self.interprete1.get() ]
+        data = datos_obtenidos[0]+datos_obtenidos[1]
+        return (data)
+    
+    # Fn para sacar el ID del formato para que se cargue como int en la sentencia SQL
+    def obtener_id_genero(self):
+        data = self.genero.get()
+        id_obtenido=self.base_datos.buscar_id_genero(data)
+        return (id_obtenido)
+
+    # Fn para sacar el ID del genero para que se cargue como int en la sentencia SQL   
+    def obtener_id_genero_modificado(self):
+        data = self.genero1.get()
+        id_obtenido1=self.base_datos.buscar_id_genero(data)
+        return (id_obtenido1)
+
+    # Fn para sacar el ID del formato para que se cargue como int en la sentencia SQL
+    def obtener_id_formato(self):
+        data = self.formato.get()
+        id_obtenido=self.base_datos.buscar_id_formato(data)
+        return (id_obtenido)
+
+    # Fn para sacar el ID del formato para que se cargue como int en la sentencia SQL
+    def obtener_id_formato_modificado(self):
+        data = self.formato1.get()
+        id_obtenido1=self.base_datos.buscar_id_formato(data)
+        return (id_obtenido1)
 
     # Fn que recibe los datos ingresados en la funcion nuevo_album y a travez de base_datos.inserta_album los ingresa en la BBDD
     def agregar_datos(self):
         #self.tabla.get_children()
         codigo_album = self.codigo_album.get()
         nombre = self.nombre.get()
-        interprete = self.interprete.get()
-        genero = self.genero.get()
+        interprete = self.obtener_id_interprete()
+        genero = self.obtener_id_genero()
         cant_temas = self.cant_temas.get()
         discografica = self.obtener_id_discografica()
-        formato = self.formato.get()
+        formato = self.obtener_id_formato()
         fecha_lanzamiento = self.fecha_lanzamiento.get()
         precio = self.precio.get()
         cantidad = self.cantidad.get()
@@ -343,11 +377,11 @@ class Registro(Frame):
         id_album = self.id_album
         codigo_album1 = self.codigo_album1.get()
         nombre1 = self.nombre1.get()
-        interprete1 = self.interprete1.get()
+        interprete1 = self.interprete_cargado
         genero1 = self.genero1.get()
         cant_temas1 = self.cant_temas1.get()
         discografica1 = self.discografica_cargada
-        formato1 = self.formato1.get()
+        formato1 = self.formato_cargado
         fecha_lanzamiento1 = self.fecha_lanzamiento1.get()
         precio1 = self.precio1.get()
         cantidad1 = self.cantidad1.get()
@@ -405,7 +439,7 @@ class Registro(Frame):
         i = -1
         for dato in registro_genero:
             i= i+1                       
-            self.tabla1.insert("",i, text = registro_genero[i][0:1], values=registro_genero[i][1:10])
+            self.tabla1.insert("",i, text = registro_genero[i][0:1], values=registro_genero[i][1:9])
 
     # Fn para eliminar album            
     def eliminar_fila(self):
@@ -454,7 +488,6 @@ class Registro(Frame):
 def main():
     ventana_inicio = Tk()
     ventana_inicio.title("Registro de Albumes e Interpretes")
-    fondo = PhotoImage (file='' )
     ventana_inicio.config(bg='gray')
     ventana_inicio.state('zoomed')
     w, h = ventana_inicio.winfo_screenwidth(),ventana_inicio.winfo_screenheight()
